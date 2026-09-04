@@ -1,5 +1,7 @@
 # 错误契约
 
+M00/M01 Walking Skeleton 的错误码、HTTP 映射与 `ErrorResponse 1.0.0` 由 [Walking Skeleton Contract Addendum 1](walking-skeleton-contract-addendum-1.md) 冻结。
+
 ## ErrorResponse
 
 ```json

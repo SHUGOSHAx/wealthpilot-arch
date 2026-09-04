@@ -1,5 +1,7 @@
 # 事件契约
 
+M00/M01 Walking Skeleton 的 Event envelope、七类事件与 Last-Event-ID replay 由 [Walking Skeleton Contract Addendum 1](walking-skeleton-contract-addendum-1.md) 冻结为可执行契约。
+
 ## Envelope
 
 ```json

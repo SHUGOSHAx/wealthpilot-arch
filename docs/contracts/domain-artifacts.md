@@ -1,5 +1,7 @@
 # 领域 Artifact 契约
 
+M00/M01 Walking Skeleton 的 `ImportPreview`、`FinancialSnapshot`、统一 Money 与 Artifact metadata 由 [Walking Skeleton Contract Addendum 1](walking-skeleton-contract-addendum-1.md) 冻结为可执行契约。
+
 ## 通用规则
 
 所有 Artifact 包含：

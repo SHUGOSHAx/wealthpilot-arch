@@ -1,5 +1,7 @@
 # API 契约
 
+M00/M01 Walking Skeleton 的 Import、Run、SSE 与最小 FinancialSnapshot API 由 [Walking Skeleton Contract Addendum 1](walking-skeleton-contract-addendum-1.md) 冻结；其机器可读 Schema 是该切片的规范源。
+
 ## 通用规则
 
 - 基础路径：`/api/v1`；

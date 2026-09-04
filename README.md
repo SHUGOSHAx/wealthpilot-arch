@@ -52,6 +52,7 @@ WealthPilot 是一个以个人完整财务状况为基础、由多 Agent 专业�
 
 ### 契约
 
+- [Walking Skeleton Contract Addendum 1](docs/contracts/walking-skeleton-contract-addendum-1.md)
 - [领域 Artifact](docs/contracts/domain-artifacts.md)
 - [API 契约](docs/contracts/api-contracts.md)
 - [事件契约](docs/contracts/event-contracts.md)

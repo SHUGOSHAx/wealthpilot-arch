@@ -1,0 +1,915 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://wealthpilot.local/schemas/walking-skeleton-contract-addendum-1.schema.json",
+  "title": "Walking Skeleton Contract Addendum 1",
+  "description": "M00/M01 Walking Skeleton normative public schemas.",
+  "type": "object",
+  "additionalProperties": false,
+  "$defs": {
+    "Uuid": {
+      "type": "string",
+      "format": "uuid",
+      "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+    },
+    "UtcDateTime": {
+      "type": "string",
+      "format": "date-time",
+      "pattern": "Z$"
+    },
+    "SchemaVersion": {
+      "type": "string",
+      "const": "1.0.0"
+    },
+    "Sha256": {
+      "type": "string",
+      "pattern": "^sha256:[0-9a-f]{64}$"
+    },
+    "DecimalString": {
+      "type": "string",
+      "pattern": "^(0|(-?[1-9][0-9]*)(\\.[0-9]*[1-9])?|-?0\\.[0-9]*[1-9])$"
+    },
+    "Money": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["amount", "currency"],
+      "properties": {
+        "amount": { "$ref": "#/$defs/DecimalString" },
+        "currency": { "type": "string", "enum": ["CNY"] }
+      }
+    },
+    "ArtifactType": {
+      "type": "string",
+      "enum": ["IMPORT_PREVIEW", "FINANCIAL_SNAPSHOT"]
+    },
+    "ArtifactMetadata": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "artifact_id",
+        "artifact_type",
+        "schema_version",
+        "created_at",
+        "created_by",
+        "run_id",
+        "content_hash"
+      ],
+      "properties": {
+        "artifact_id": { "$ref": "#/$defs/Uuid" },
+        "artifact_type": { "$ref": "#/$defs/ArtifactType" },
+        "schema_version": { "$ref": "#/$defs/SchemaVersion" },
+        "created_at": { "$ref": "#/$defs/UtcDateTime" },
+        "created_by": { "type": "string", "minLength": 1, "maxLength": 128 },
+        "run_id": {
+          "oneOf": [
+            { "$ref": "#/$defs/Uuid" },
+            { "type": "null" }
+          ]
+        },
+        "content_hash": { "$ref": "#/$defs/Sha256" }
+      }
+    },
+    "ArtifactReference": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["artifact_id", "artifact_type", "schema_version", "content_hash"],
+      "properties": {
+        "artifact_id": { "$ref": "#/$defs/Uuid" },
+        "artifact_type": { "$ref": "#/$defs/ArtifactType" },
+        "schema_version": { "$ref": "#/$defs/SchemaVersion" },
+        "content_hash": { "$ref": "#/$defs/Sha256" }
+      }
+    },
+    "SourceType": {
+      "type": "string",
+      "enum": ["IMPORT_FILE", "IMPORT_ROW", "JOURNAL_ENTRY", "POSTING"]
+    },
+    "SourceReference": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["source_type", "source_id", "source_hash", "locator"],
+      "properties": {
+        "source_type": { "$ref": "#/$defs/SourceType" },
+        "source_id": { "type": "string", "minLength": 1, "maxLength": 256 },
+        "source_hash": {
+          "oneOf": [
+            { "$ref": "#/$defs/Sha256" },
+            { "type": "null" }
+          ]
+        },
+        "locator": {
+          "oneOf": [
+            { "type": "string", "minLength": 1, "maxLength": 256 },
+            { "type": "null" }
+          ]
+        }
+      }
+    },
+    "ImportSourceType": {
+      "type": "string",
+      "enum": ["GENERIC_BANK_CSV"]
+    },
+    "ImportIntentType": {
+      "type": "string",
+      "enum": ["CREATE_LEDGER_ENTRIES_AND_FINANCIAL_SNAPSHOT"]
+    },
+    "ImportStatus": {
+      "type": "string",
+      "enum": [
+        "CREATED",
+        "PROCESSING",
+        "PREVIEW_READY",
+        "COMMITTING",
+        "COMMITTED",
+        "FAILED"
+      ]
+    },
+    "ImportRequest": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema_version",
+        "intent",
+        "source_type",
+        "target_account_id",
+        "file_name",
+        "as_of"
+      ],
+      "properties": {
+        "schema_version": { "$ref": "#/$defs/SchemaVersion" },
+        "intent": { "$ref": "#/$defs/ImportIntentType" },
+        "source_type": { "$ref": "#/$defs/ImportSourceType" },
+        "target_account_id": { "$ref": "#/$defs/Uuid" },
+        "file_name": { "type": "string", "minLength": 1, "maxLength": 255 },
+        "as_of": { "$ref": "#/$defs/UtcDateTime" }
+      }
+    },
+    "ImportIntent": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "intent_id",
+        "import_id",
+        "run_id",
+        "intent",
+        "source_type",
+        "target_account_id",
+        "file_name",
+        "file_hash",
+        "requested_at"
+      ],
+      "properties": {
+        "intent_id": { "$ref": "#/$defs/Uuid" },
+        "import_id": { "$ref": "#/$defs/Uuid" },
+        "run_id": { "$ref": "#/$defs/Uuid" },
+        "intent": { "$ref": "#/$defs/ImportIntentType" },
+        "source_type": { "$ref": "#/$defs/ImportSourceType" },
+        "target_account_id": { "$ref": "#/$defs/Uuid" },
+        "file_name": { "type": "string", "minLength": 1, "maxLength": 255 },
+        "file_hash": { "$ref": "#/$defs/Sha256" },
+        "requested_at": { "$ref": "#/$defs/UtcDateTime" }
+      }
+    },
+    "ImportAccepted": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema_version",
+        "import_id",
+        "run_id",
+        "status",
+        "status_url",
+        "events_url",
+        "created_at"
+      ],
+      "properties": {
+        "schema_version": { "$ref": "#/$defs/SchemaVersion" },
+        "import_id": { "$ref": "#/$defs/Uuid" },
+        "run_id": { "$ref": "#/$defs/Uuid" },
+        "status": { "type": "string", "enum": ["CREATED", "PROCESSING"] },
+        "status_url": { "type": "string", "format": "uri-reference" },
+        "events_url": { "type": "string", "format": "uri-reference" },
+        "created_at": { "$ref": "#/$defs/UtcDateTime" }
+      }
+    },
+    "ImportDirection": {
+      "type": "string",
+      "enum": ["INFLOW", "OUTFLOW"]
+    },
+    "ImportCategory": {
+      "type": "string",
+      "enum": ["INCOME", "EXPENSE", "TRANSFER", "UNCLASSIFIED"]
+    },
+    "ClassificationSource": {
+      "type": "string",
+      "enum": ["RULE", "MODEL", "USER", "NONE"]
+    },
+    "ImportPreviewItemStatus": {
+      "type": "string",
+      "enum": ["READY", "NEEDS_CONFIRMATION", "SKIPPED", "CONFLICT"]
+    },
+    "ImportPreviewItem": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "row_id",
+        "source_row_number",
+        "occurred_at",
+        "description",
+        "direction",
+        "amount",
+        "category",
+        "classification_source",
+        "status",
+        "source_reference"
+      ],
+      "properties": {
+        "row_id": { "$ref": "#/$defs/Uuid" },
+        "source_row_number": { "type": "integer", "minimum": 1 },
+        "occurred_at": { "$ref": "#/$defs/UtcDateTime" },
+        "description": { "type": "string", "minLength": 1, "maxLength": 1024 },
+        "direction": { "$ref": "#/$defs/ImportDirection" },
+        "amount": { "$ref": "#/$defs/Money" },
+        "category": { "$ref": "#/$defs/ImportCategory" },
+        "classification_source": { "$ref": "#/$defs/ClassificationSource" },
+        "status": { "$ref": "#/$defs/ImportPreviewItemStatus" },
+        "source_reference": { "$ref": "#/$defs/SourceReference" }
+      }
+    },
+    "ImportPreviewSummary": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "total_count",
+        "ready_count",
+        "needs_confirmation_count",
+        "skipped_count",
+        "conflict_count",
+        "inflow_total",
+        "outflow_total"
+      ],
+      "properties": {
+        "total_count": { "type": "integer", "minimum": 0 },
+        "ready_count": { "type": "integer", "minimum": 0 },
+        "needs_confirmation_count": { "type": "integer", "minimum": 0 },
+        "skipped_count": { "type": "integer", "minimum": 0 },
+        "conflict_count": { "type": "integer", "minimum": 0 },
+        "inflow_total": { "$ref": "#/$defs/Money" },
+        "outflow_total": { "$ref": "#/$defs/Money" }
+      }
+    },
+    "ImportPreview": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "metadata",
+        "import_id",
+        "preview_version",
+        "preview_hash",
+        "target_account_id",
+        "source_file_reference",
+        "items",
+        "summary",
+        "commit_eligible"
+      ],
+      "properties": {
+        "metadata": { "$ref": "#/$defs/ArtifactMetadata" },
+        "import_id": { "$ref": "#/$defs/Uuid" },
+        "preview_version": { "type": "integer", "minimum": 1 },
+        "preview_hash": { "$ref": "#/$defs/Sha256" },
+        "target_account_id": { "$ref": "#/$defs/Uuid" },
+        "source_file_reference": { "$ref": "#/$defs/SourceReference" },
+        "items": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/ImportPreviewItem" }
+        },
+        "summary": { "$ref": "#/$defs/ImportPreviewSummary" },
+        "commit_eligible": { "type": "boolean" }
+      }
+    },
+    "ImportCommitCommand": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema_version",
+        "command_id",
+        "preview_version",
+        "preview_hash",
+        "requested_at"
+      ],
+      "properties": {
+        "schema_version": { "$ref": "#/$defs/SchemaVersion" },
+        "command_id": { "$ref": "#/$defs/Uuid" },
+        "preview_version": { "type": "integer", "minimum": 1 },
+        "preview_hash": { "$ref": "#/$defs/Sha256" },
+        "requested_at": { "$ref": "#/$defs/UtcDateTime" }
+      }
+    },
+    "ImportCommitAccepted": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["schema_version", "import_id", "run_id", "status", "events_url", "accepted_at"],
+      "properties": {
+        "schema_version": { "$ref": "#/$defs/SchemaVersion" },
+        "import_id": { "$ref": "#/$defs/Uuid" },
+        "run_id": { "$ref": "#/$defs/Uuid" },
+        "status": { "type": "string", "enum": ["COMMITTING", "COMMITTED"] },
+        "events_url": { "type": "string", "format": "uri-reference" },
+        "accepted_at": { "$ref": "#/$defs/UtcDateTime" }
+      }
+    },
+    "RunType": {
+      "type": "string",
+      "enum": ["IMPORT_TO_FINANCIAL_SNAPSHOT"]
+    },
+    "RunStatus": {
+      "type": "string",
+      "enum": ["CREATED", "QUEUED", "RUNNING", "WAITING_FOR_INPUT", "COMPLETED", "FAILED"]
+    },
+    "TaskType": {
+      "type": "string",
+      "enum": [
+        "PARSE_IMPORT",
+        "CLASSIFY_IMPORT",
+        "BUILD_IMPORT_PREVIEW",
+        "COMMIT_LEDGER",
+        "BUILD_FINANCIAL_SNAPSHOT"
+      ]
+    },
+    "TaskStatus": {
+      "type": "string",
+      "enum": ["PENDING", "READY", "RUNNING", "WAITING_FOR_INPUT", "SUCCEEDED", "FAILED", "SKIPPED"]
+    },
+    "RunPhase": {
+      "type": "string",
+      "enum": [
+        "ACCEPTING_UPLOAD",
+        "PARSING",
+        "CLASSIFYING",
+        "BUILDING_PREVIEW",
+        "AWAITING_CONFIRMATION",
+        "COMMITTING_LEDGER",
+        "BUILDING_SNAPSHOT",
+        "COMPLETED"
+      ]
+    },
+    "RunProgress": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["phase", "percent", "completed_tasks", "total_tasks", "current_task_id", "updated_at"],
+      "properties": {
+        "phase": { "$ref": "#/$defs/RunPhase" },
+        "percent": { "type": "integer", "minimum": 0, "maximum": 100 },
+        "completed_tasks": { "type": "integer", "minimum": 0 },
+        "total_tasks": { "type": "integer", "minimum": 1 },
+        "current_task_id": {
+          "oneOf": [
+            { "$ref": "#/$defs/Uuid" },
+            { "type": "null" }
+          ]
+        },
+        "updated_at": { "$ref": "#/$defs/UtcDateTime" }
+      }
+    },
+    "CheckpointSummary": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["checkpoint_id", "checkpoint_version", "task_id", "created_at", "resumable"],
+      "properties": {
+        "checkpoint_id": { "$ref": "#/$defs/Uuid" },
+        "checkpoint_version": { "type": "integer", "minimum": 1 },
+        "task_id": { "$ref": "#/$defs/Uuid" },
+        "created_at": { "$ref": "#/$defs/UtcDateTime" },
+        "resumable": { "type": "boolean" }
+      }
+    },
+    "FailureState": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "error_code",
+        "message",
+        "stage",
+        "retryable",
+        "failed_task_id",
+        "occurred_at",
+        "recovery_action",
+        "partial_artifacts"
+      ],
+      "properties": {
+        "error_code": { "type": "string", "pattern": "^[A-Z][A-Z0-9_]+$" },
+        "message": { "type": "string", "minLength": 1, "maxLength": 1024 },
+        "stage": { "type": "string", "minLength": 1, "maxLength": 128 },
+        "retryable": { "type": "boolean" },
+        "failed_task_id": {
+          "oneOf": [
+            { "$ref": "#/$defs/Uuid" },
+            { "type": "null" }
+          ]
+        },
+        "occurred_at": { "$ref": "#/$defs/UtcDateTime" },
+        "recovery_action": {
+          "oneOf": [
+            { "type": "string", "minLength": 1, "maxLength": 1024 },
+            { "type": "null" }
+          ]
+        },
+        "partial_artifacts": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/ArtifactReference" }
+        }
+      }
+    },
+    "TaskState": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "task_id",
+        "run_id",
+        "task_type",
+        "status",
+        "attempt",
+        "created_at",
+        "started_at",
+        "completed_at",
+        "input_artifacts",
+        "output_artifacts",
+        "failure"
+      ],
+      "properties": {
+        "task_id": { "$ref": "#/$defs/Uuid" },
+        "run_id": { "$ref": "#/$defs/Uuid" },
+        "task_type": { "$ref": "#/$defs/TaskType" },
+        "status": { "$ref": "#/$defs/TaskStatus" },
+        "attempt": { "type": "integer", "minimum": 0 },
+        "created_at": { "$ref": "#/$defs/UtcDateTime" },
+        "started_at": {
+          "oneOf": [
+            { "$ref": "#/$defs/UtcDateTime" },
+            { "type": "null" }
+          ]
+        },
+        "completed_at": {
+          "oneOf": [
+            { "$ref": "#/$defs/UtcDateTime" },
+            { "type": "null" }
+          ]
+        },
+        "input_artifacts": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/ArtifactReference" }
+        },
+        "output_artifacts": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/ArtifactReference" }
+        },
+        "failure": {
+          "oneOf": [
+            { "$ref": "#/$defs/FailureState" },
+            { "type": "null" }
+          ]
+        }
+      }
+    },
+    "RunState": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema_version",
+        "run_id",
+        "run_type",
+        "status",
+        "progress",
+        "created_at",
+        "started_at",
+        "updated_at",
+        "completed_at",
+        "checkpoint",
+        "failure",
+        "tasks",
+        "artifacts"
+      ],
+      "properties": {
+        "schema_version": { "$ref": "#/$defs/SchemaVersion" },
+        "run_id": { "$ref": "#/$defs/Uuid" },
+        "run_type": { "$ref": "#/$defs/RunType" },
+        "status": { "$ref": "#/$defs/RunStatus" },
+        "progress": { "$ref": "#/$defs/RunProgress" },
+        "created_at": { "$ref": "#/$defs/UtcDateTime" },
+        "started_at": {
+          "oneOf": [
+            { "$ref": "#/$defs/UtcDateTime" },
+            { "type": "null" }
+          ]
+        },
+        "updated_at": { "$ref": "#/$defs/UtcDateTime" },
+        "completed_at": {
+          "oneOf": [
+            { "$ref": "#/$defs/UtcDateTime" },
+            { "type": "null" }
+          ]
+        },
+        "checkpoint": {
+          "oneOf": [
+            { "$ref": "#/$defs/CheckpointSummary" },
+            { "type": "null" }
+          ]
+        },
+        "failure": {
+          "oneOf": [
+            { "$ref": "#/$defs/FailureState" },
+            { "type": "null" }
+          ]
+        },
+        "tasks": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/TaskState" }
+        },
+        "artifacts": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/ArtifactReference" }
+        }
+      }
+    },
+    "ImportStatusResource": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["schema_version", "import_id", "run_id", "status", "preview", "failure", "updated_at"],
+      "properties": {
+        "schema_version": { "$ref": "#/$defs/SchemaVersion" },
+        "import_id": { "$ref": "#/$defs/Uuid" },
+        "run_id": { "$ref": "#/$defs/Uuid" },
+        "status": { "$ref": "#/$defs/ImportStatus" },
+        "preview": {
+          "oneOf": [
+            { "$ref": "#/$defs/ArtifactReference" },
+            { "type": "null" }
+          ]
+        },
+        "failure": {
+          "oneOf": [
+            { "$ref": "#/$defs/FailureState" },
+            { "type": "null" }
+          ]
+        },
+        "updated_at": { "$ref": "#/$defs/UtcDateTime" }
+      }
+    },
+    "AccountCategory": {
+      "type": "string",
+      "enum": ["ASSET", "LIABILITY"]
+    },
+    "AccountBalance": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["account_id", "account_category", "balance", "source_references"],
+      "properties": {
+        "account_id": { "$ref": "#/$defs/Uuid" },
+        "account_category": { "$ref": "#/$defs/AccountCategory" },
+        "balance": { "$ref": "#/$defs/Money" },
+        "source_references": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "$ref": "#/$defs/SourceReference" }
+        }
+      }
+    },
+    "BalanceSheetPosition": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["position_id", "position_type", "account_id", "value", "source_references"],
+      "properties": {
+        "position_id": { "$ref": "#/$defs/Uuid" },
+        "position_type": { "type": "string", "enum": ["ACCOUNT_BALANCE"] },
+        "account_id": { "$ref": "#/$defs/Uuid" },
+        "value": { "$ref": "#/$defs/Money" },
+        "source_references": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "$ref": "#/$defs/SourceReference" }
+        }
+      }
+    },
+    "CalculationMetadata": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "calculation_version",
+        "formula",
+        "rounding_mode",
+        "base_currency",
+        "ledger_cutoff_at",
+        "input_artifact_ids",
+        "posting_count"
+      ],
+      "properties": {
+        "calculation_version": { "type": "string", "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$" },
+        "formula": { "type": "string", "const": "NET_WORTH = TOTAL_ASSETS - TOTAL_LIABILITIES" },
+        "rounding_mode": { "type": "string", "enum": ["ROUND_HALF_EVEN"] },
+        "base_currency": { "type": "string", "enum": ["CNY"] },
+        "ledger_cutoff_at": { "$ref": "#/$defs/UtcDateTime" },
+        "input_artifact_ids": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/Uuid" }
+        },
+        "posting_count": { "type": "integer", "minimum": 0 }
+      }
+    },
+    "FinancialSnapshot": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "metadata",
+        "snapshot_version",
+        "as_of",
+        "base_currency",
+        "account_balances",
+        "assets",
+        "liabilities",
+        "total_assets",
+        "total_liabilities",
+        "net_worth",
+        "source_references",
+        "calculation_metadata"
+      ],
+      "properties": {
+        "metadata": { "$ref": "#/$defs/ArtifactMetadata" },
+        "snapshot_version": { "type": "integer", "minimum": 1 },
+        "as_of": { "$ref": "#/$defs/UtcDateTime" },
+        "base_currency": { "type": "string", "enum": ["CNY"] },
+        "account_balances": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/AccountBalance" }
+        },
+        "assets": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/BalanceSheetPosition" }
+        },
+        "liabilities": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/BalanceSheetPosition" }
+        },
+        "total_assets": { "$ref": "#/$defs/Money" },
+        "total_liabilities": { "$ref": "#/$defs/Money" },
+        "net_worth": { "$ref": "#/$defs/Money" },
+        "source_references": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "$ref": "#/$defs/SourceReference" }
+        },
+        "calculation_metadata": { "$ref": "#/$defs/CalculationMetadata" }
+      }
+    },
+    "EventType": {
+      "type": "string",
+      "enum": [
+        "run.created",
+        "run.started",
+        "run.progress",
+        "import.preview_ready",
+        "import.committed",
+        "run.completed",
+        "run.failed"
+      ]
+    },
+    "EventEnvelope": {
+      "type": "object",
+      "required": [
+        "event_id",
+        "run_id",
+        "event_type",
+        "occurred_at",
+        "sequence",
+        "schema_version",
+        "payload_version",
+        "payload"
+      ],
+      "properties": {
+        "event_id": { "$ref": "#/$defs/Uuid" },
+        "run_id": { "$ref": "#/$defs/Uuid" },
+        "event_type": { "$ref": "#/$defs/EventType" },
+        "occurred_at": { "$ref": "#/$defs/UtcDateTime" },
+        "sequence": { "type": "integer", "minimum": 1 },
+        "schema_version": { "$ref": "#/$defs/SchemaVersion" },
+        "payload_version": { "$ref": "#/$defs/SchemaVersion" },
+        "payload": { "type": "object" }
+      }
+    },
+    "RunCreatedPayload": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["run_type", "status", "created_at"],
+      "properties": {
+        "run_type": { "$ref": "#/$defs/RunType" },
+        "status": { "type": "string", "const": "CREATED" },
+        "created_at": { "$ref": "#/$defs/UtcDateTime" }
+      }
+    },
+    "RunStartedPayload": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["status", "started_at"],
+      "properties": {
+        "status": { "type": "string", "const": "RUNNING" },
+        "started_at": { "$ref": "#/$defs/UtcDateTime" }
+      }
+    },
+    "RunProgressPayload": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["status", "progress"],
+      "properties": {
+        "status": { "$ref": "#/$defs/RunStatus" },
+        "progress": { "$ref": "#/$defs/RunProgress" }
+      }
+    },
+    "ImportPreviewReadyPayload": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["import_id", "preview", "preview_version", "preview_hash", "summary"],
+      "properties": {
+        "import_id": { "$ref": "#/$defs/Uuid" },
+        "preview": { "$ref": "#/$defs/ArtifactReference" },
+        "preview_version": { "type": "integer", "minimum": 1 },
+        "preview_hash": { "$ref": "#/$defs/Sha256" },
+        "summary": { "$ref": "#/$defs/ImportPreviewSummary" }
+      }
+    },
+    "ImportCommittedPayload": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["import_id", "committed_at", "journal_entry_ids", "posting_count"],
+      "properties": {
+        "import_id": { "$ref": "#/$defs/Uuid" },
+        "committed_at": { "$ref": "#/$defs/UtcDateTime" },
+        "journal_entry_ids": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/Uuid" }
+        },
+        "posting_count": { "type": "integer", "minimum": 0 }
+      }
+    },
+    "RunCompletedPayload": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["status", "completed_at", "result_artifacts"],
+      "properties": {
+        "status": { "type": "string", "const": "COMPLETED" },
+        "completed_at": { "$ref": "#/$defs/UtcDateTime" },
+        "result_artifacts": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "$ref": "#/$defs/ArtifactReference" }
+        }
+      }
+    },
+    "RunFailedPayload": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["status", "failure"],
+      "properties": {
+        "status": { "type": "string", "const": "FAILED" },
+        "failure": { "$ref": "#/$defs/FailureState" }
+      }
+    },
+    "RunCreatedEvent": {
+      "allOf": [
+        { "$ref": "#/$defs/EventEnvelope" },
+        {
+          "type": "object",
+          "properties": {
+            "event_type": { "const": "run.created" },
+            "payload": { "$ref": "#/$defs/RunCreatedPayload" }
+          }
+        }
+      ],
+      "unevaluatedProperties": false
+    },
+    "RunStartedEvent": {
+      "allOf": [
+        { "$ref": "#/$defs/EventEnvelope" },
+        {
+          "type": "object",
+          "properties": {
+            "event_type": { "const": "run.started" },
+            "payload": { "$ref": "#/$defs/RunStartedPayload" }
+          }
+        }
+      ],
+      "unevaluatedProperties": false
+    },
+    "RunProgressEvent": {
+      "allOf": [
+        { "$ref": "#/$defs/EventEnvelope" },
+        {
+          "type": "object",
+          "properties": {
+            "event_type": { "const": "run.progress" },
+            "payload": { "$ref": "#/$defs/RunProgressPayload" }
+          }
+        }
+      ],
+      "unevaluatedProperties": false
+    },
+    "ImportPreviewReadyEvent": {
+      "allOf": [
+        { "$ref": "#/$defs/EventEnvelope" },
+        {
+          "type": "object",
+          "properties": {
+            "event_type": { "const": "import.preview_ready" },
+            "payload": { "$ref": "#/$defs/ImportPreviewReadyPayload" }
+          }
+        }
+      ],
+      "unevaluatedProperties": false
+    },
+    "ImportCommittedEvent": {
+      "allOf": [
+        { "$ref": "#/$defs/EventEnvelope" },
+        {
+          "type": "object",
+          "properties": {
+            "event_type": { "const": "import.committed" },
+            "payload": { "$ref": "#/$defs/ImportCommittedPayload" }
+          }
+        }
+      ],
+      "unevaluatedProperties": false
+    },
+    "RunCompletedEvent": {
+      "allOf": [
+        { "$ref": "#/$defs/EventEnvelope" },
+        {
+          "type": "object",
+          "properties": {
+            "event_type": { "const": "run.completed" },
+            "payload": { "$ref": "#/$defs/RunCompletedPayload" }
+          }
+        }
+      ],
+      "unevaluatedProperties": false
+    },
+    "RunFailedEvent": {
+      "allOf": [
+        { "$ref": "#/$defs/EventEnvelope" },
+        {
+          "type": "object",
+          "properties": {
+            "event_type": { "const": "run.failed" },
+            "payload": { "$ref": "#/$defs/RunFailedPayload" }
+          }
+        }
+      ],
+      "unevaluatedProperties": false
+    },
+    "WalkingSkeletonEvent": {
+      "oneOf": [
+        { "$ref": "#/$defs/RunCreatedEvent" },
+        { "$ref": "#/$defs/RunStartedEvent" },
+        { "$ref": "#/$defs/RunProgressEvent" },
+        { "$ref": "#/$defs/ImportPreviewReadyEvent" },
+        { "$ref": "#/$defs/ImportCommittedEvent" },
+        { "$ref": "#/$defs/RunCompletedEvent" },
+        { "$ref": "#/$defs/RunFailedEvent" }
+      ]
+    },
+    "CheckpointStatus": {
+      "type": "string",
+      "enum": ["NOT_APPLICABLE", "NOT_SAVED", "SAVED", "RESUMABLE"]
+    },
+    "ErrorResponse": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema_version",
+        "error_code",
+        "message",
+        "trace_id",
+        "stage",
+        "retryable",
+        "partial_artifacts",
+        "checkpoint_status",
+        "recovery_action"
+      ],
+      "properties": {
+        "schema_version": { "$ref": "#/$defs/SchemaVersion" },
+        "error_code": { "type": "string", "pattern": "^[A-Z][A-Z0-9_]+$" },
+        "message": { "type": "string", "minLength": 1, "maxLength": 1024 },
+        "trace_id": { "$ref": "#/$defs/Uuid" },
+        "stage": { "type": "string", "minLength": 1, "maxLength": 128 },
+        "retryable": { "type": "boolean" },
+        "partial_artifacts": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/Uuid" }
+        },
+        "checkpoint_status": { "$ref": "#/$defs/CheckpointStatus" },
+        "recovery_action": {
+          "oneOf": [
+            { "type": "string", "minLength": 1, "maxLength": 1024 },
+            { "type": "null" }
+          ]
+        }
+      }
+    }
+  }
+}
